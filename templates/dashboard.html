@@ -575,9 +575,9 @@ from openedx.core.djangolib.markup import HTML, Text
         window.onload = function() {
 
           if (window.location.port){
-            $("#lti-iframes-hidden-container").html("Current implementation does not support full capabilities of this page.");
+            $("#lti-iframes-hidden-container").html("");
           } else {
-            $("#lti-iframes-hidden-container").html('<iframe id="financial-aid-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@31451d9bc2964d16947bd8c54fe99f9b"> </iframe><iframe id="career-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@daab4c87aac243d38b562f5a327fd5cf"> </iframe><iframe id="postsecondary-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@7a1fadbda50a4f118cd7ed874308b0fa"> </iframe>');
+            $("#lti-iframes-hidden-container").html("");//.html('<iframe id="financial-aid-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@31451d9bc2964d16947bd8c54fe99f9b"> </iframe><iframe id="career-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@daab4c87aac243d38b562f5a327fd5cf"> </iframe><iframe id="postsecondary-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@7a1fadbda50a4f118cd7ed874308b0fa"> </iframe>');
           }
 
           var children = document.getElementById("lti-iframes-hidden-container").children;
