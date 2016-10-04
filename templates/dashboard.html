@@ -1,0 +1,679 @@
+<%page expression_filter="h"/>
+<%inherit file="main.html" />
+<%def name="online_help_token()"><% return "learnerdashboard" %></%def>
+<%namespace name='static' file='static_content.html'/>
+<%!
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+from django.template import RequestContext
+import third_party_auth
+from third_party_auth import pipeline
+from openedx.core.djangolib.js_utils import dump_js_escaped_json, js_escaped_string
+from openedx.core.djangolib.markup import HTML, Text
+%>
+
+<%
+  cert_name_short = settings.CERT_NAME_SHORT
+  cert_name_long = settings.CERT_NAME_LONG
+%>
+
+
+<%block name="pagetitle">${_("Dashboard")}</%block>
+<%block name="bodyclass">view-dashboard is-authenticated</%block>
+
+<%block name="header_extras">
+% for template_name in ["donation"]:
+<script type="text/template" id="${template_name}-tpl">
+  <%static:include path="dashboard/${template_name}.underscore" />
+</script>
+% endfor
+
+% for template_name in ["dashboard_search_item", "dashboard_search_results", "search_loading", "search_error"]:
+<script type="text/template" id="${template_name}-tpl">
+    <%static:include path="search/${template_name}.underscore" />
+</script>
+% endfor
+</%block>
+
+<%block name="js_extra">
+  <script src="${static.url('js/commerce/credit.js')}"></script>
+  <%static:js group='dashboard'/>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      edx.dashboard.legacy.init({
+        dashboard: "${reverse('dashboard') | n, js_escaped_string}",
+        signInUser: "${reverse('signin_user') | n, js_escaped_string}",
+        changeEmailSettings: "${reverse('change_email_settings') | n, js_escaped_string}"
+      });
+    });
+  </script>
+  % if settings.FEATURES.get('ENABLE_DASHBOARD_SEARCH'):
+    <%static:require_module module_name="js/search/dashboard/dashboard_search_factory" class_name="DashboardSearchFactory">
+        DashboardSearchFactory();
+    </%static:require_module>
+  % endif
+  % if redirect_message:
+    <%static:require_module module_name="js/views/message_banner" class_name="MessageBannerView">
+        var banner = new MessageBannerView({urgency: 'low', type: 'warning'});
+        $('#content').prepend(banner.$el);
+        banner.showMessage(${redirect_message | n, dump_js_escaped_json})
+    </%static:require_module>
+  % endif
+</%block>
+
+<div class="dashboard-notifications" tabindex="-1">
+    %if message:
+        <div class="dashboard-banner">
+            ${message | n, decode.utf8}
+        </div>
+    %endif
+
+    %if enrollment_message:
+        <div class="dashboard-banner">
+            ${enrollment_message | n,  decode.utf8}
+        </div>
+    %endif
+</div>
+
+<main id="main" aria-label="Content" tabindex="-1">
+    <div class="container dashboard" id="dashboard-main">
+
+
+      <!-- Start body of Dashboard -->
+
+
+      <link rel="stylesheet" type="text/css" href="/static/texas/redactor.css">
+      <link rel="stylesheet" href="/static/texas/tex-main.css">
+      <link rel="stylesheet" href="/static/texas/tex-overwrite.css">
+
+      <div class="lo-mainclass">
+      <div class="lo-grid lo-courses-main ng-scope">
+        <div class="lo-grid-unit-1-1 lo-courses-views">
+          <div class="course-list lo-container" ng-init="init()">
+            <h1>
+
+                  <svg class="blue-svg" style="fill: #273e8f;" viewBox="5 -5 90 90" height="1em" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0-2.603,0-5.204,0-7.804c3.521,0,7.041-0.004,10.561,0.006  c0.298,0.003,0.443-0.074,0.557-0.369c1.381-3.562,2.779-7.116,4.173-10.672c6.561-16.745,13.121-33.492,19.683-50.237  c0.096-0.244,0.201-0.485,0.298-0.719c0.431,0.303,0.806,0.618,1.225,0.854c2.42,1.357,4.949,2.479,7.595,3.315  c0.669,0.211,1.381,0.312,2.083,0.4c0.414,0.053,0.511-0.093,0.511-0.51c0.001-1.705,0.001-3.411,0.001-5.115  c0-0.131,0-0.262,0-0.403c0.104-0.006,0.164-0.018,0.223-0.012c1.325,0.147,2.645,0.365,3.974,0.431  c2.864,0.144,5.731,0.25,8.599,0.296c3.442,0.055,6.891,0.071,10.326-0.225c0.801-0.069,1.618-0.095,2.362-0.477  c0.063-0.034,0.212-0.037,0.235,0c0.279,0.445,0.749,0.44,1.174,0.495c2.479,0.314,4.969,0.303,7.453,0.12  c0.85-0.063,1.693-0.249,2.529-0.429c0.215-0.046,0.392-0.28,0.583-0.428c0.1,0,0.198,0,0.295,0  c0.813,21.218,1.627,42.434,2.442,63.681c2.496,0,4.959,0,7.422,0c0,2.6,0,5.201,0,7.804c-0.17,0.003-0.343,0.011-0.513,0.011  c-31.117,0-62.234,0-93.351,0C3.449,93.094,3.302,93.086,3.155,93.083z M49.828,28.525c-0.022-0.003-0.046-0.007-0.068-0.011  c-7.41,18.909-14.819,37.817-22.236,56.741c7.46,0,14.875,0,22.304,0C49.828,66.33,49.828,47.427,49.828,28.525z M39.212,30.451  c-4.218,10.767-8.415,21.476-12.623,32.212c1.431,0.562,2.817,1.104,4.237,1.662c4.211-10.747,8.413-21.469,12.625-32.215  C42.028,31.553,40.643,31.01,39.212,30.451z M71.047,33.125c-5.562,0-11.1,0-16.628,0c0,2.477,0,4.925,0,7.375  c5.553,0,11.083,0,16.628,0C71.047,38.033,71.047,35.585,71.047,33.125z M75.661,25.618c-0.01,0-0.019,0.001-0.026,0.001  c0,19.877,0,39.755,0,59.637c0.779,0,1.533,0,2.31,0C77.185,65.361,76.424,45.49,75.661,25.618z M80.087,75.662  c2.526-0.096,5.006-0.188,7.523-0.287c-0.05-1.259-0.097-2.477-0.146-3.728c-2.541,0.1-5.027,0.195-7.526,0.293  C79.987,73.205,80.037,74.402,80.087,75.662z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0.147,0.003,0.294,0.011,0.441,0.011c31.117,0,62.234,0,93.351,0  c0.17,0,0.343-0.008,0.513-0.011c-0.01,0.023-0.021,0.068-0.038,0.07c-0.097,0.006-0.193,0.003-0.29,0.003  c-31.217,0-62.431,0-93.646-0.003C3.376,93.153,3.266,93.106,3.155,93.083z"/></svg>
+
+              Modules
+            </h1>
+
+            <div class="course ng-scope" id="course-1" ng-repeat="course in courses">
+              <a id="financial-aid-advising" href="#">
+                <div class="course-info">
+                  <h2 class="ng-binding">
+                    <prog-circle prog="course.prog" icon="course.icon" class="ng-isolate-scope"><div class="comp-item prog-circle done-75">
+
+                    <div class="c100">
+                      <prog-circle-circle ng-if="!scoreMode()" prog="prog" class="ng-scope ng-isolate-scope" id="chart-id-19"><div class="chart flex-center-center" style="width: 100%; height: 100%;"><svg width="48" height="48"><g transform="translate(24,24)" class="p75"><g class="arc"><path d="M1.4695761589768238e-15,-24A24,24 0 1,1 -24,2.9391523179536475e-15L-18,2.204364238465236e-15A18,18 0 1,0 1.102182119232618e-15,-18Z" class="complete"></path></g><g class="arc"><path d="M-24,2.9391523179536475e-15A24,24 0 0,1 -4.408728476930472e-15,-24L-3.3065463576978533e-15,-18A18,18 0 0,0 -18,2.204364238465236e-15Z" class="incomplete"></path></g></g></svg></div></prog-circle-circle>
+
+                  <svg class="icon mozilla-svg" 
+
+                  viewBox="5 -5 90 90" height="1em" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0-2.603,0-5.204,0-7.804c3.521,0,7.041-0.004,10.561,0.006  c0.298,0.003,0.443-0.074,0.557-0.369c1.381-3.562,2.779-7.116,4.173-10.672c6.561-16.745,13.121-33.492,19.683-50.237  c0.096-0.244,0.201-0.485,0.298-0.719c0.431,0.303,0.806,0.618,1.225,0.854c2.42,1.357,4.949,2.479,7.595,3.315  c0.669,0.211,1.381,0.312,2.083,0.4c0.414,0.053,0.511-0.093,0.511-0.51c0.001-1.705,0.001-3.411,0.001-5.115  c0-0.131,0-0.262,0-0.403c0.104-0.006,0.164-0.018,0.223-0.012c1.325,0.147,2.645,0.365,3.974,0.431  c2.864,0.144,5.731,0.25,8.599,0.296c3.442,0.055,6.891,0.071,10.326-0.225c0.801-0.069,1.618-0.095,2.362-0.477  c0.063-0.034,0.212-0.037,0.235,0c0.279,0.445,0.749,0.44,1.174,0.495c2.479,0.314,4.969,0.303,7.453,0.12  c0.85-0.063,1.693-0.249,2.529-0.429c0.215-0.046,0.392-0.28,0.583-0.428c0.1,0,0.198,0,0.295,0  c0.813,21.218,1.627,42.434,2.442,63.681c2.496,0,4.959,0,7.422,0c0,2.6,0,5.201,0,7.804c-0.17,0.003-0.343,0.011-0.513,0.011  c-31.117,0-62.234,0-93.351,0C3.449,93.094,3.302,93.086,3.155,93.083z M49.828,28.525c-0.022-0.003-0.046-0.007-0.068-0.011  c-7.41,18.909-14.819,37.817-22.236,56.741c7.46,0,14.875,0,22.304,0C49.828,66.33,49.828,47.427,49.828,28.525z M39.212,30.451  c-4.218,10.767-8.415,21.476-12.623,32.212c1.431,0.562,2.817,1.104,4.237,1.662c4.211-10.747,8.413-21.469,12.625-32.215  C42.028,31.553,40.643,31.01,39.212,30.451z M71.047,33.125c-5.562,0-11.1,0-16.628,0c0,2.477,0,4.925,0,7.375  c5.553,0,11.083,0,16.628,0C71.047,38.033,71.047,35.585,71.047,33.125z M75.661,25.618c-0.01,0-0.019,0.001-0.026,0.001  c0,19.877,0,39.755,0,59.637c0.779,0,1.533,0,2.31,0C77.185,65.361,76.424,45.49,75.661,25.618z M80.087,75.662  c2.526-0.096,5.006-0.188,7.523-0.287c-0.05-1.259-0.097-2.477-0.146-3.728c-2.541,0.1-5.027,0.195-7.526,0.293  C79.987,73.205,80.037,74.402,80.087,75.662z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0.147,0.003,0.294,0.011,0.441,0.011c31.117,0,62.234,0,93.351,0  c0.17,0,0.343-0.008,0.513-0.011c-0.01,0.023-0.021,0.068-0.038,0.07c-0.097,0.006-0.193,0.003-0.29,0.003  c-31.217,0-62.431,0-93.646-0.003C3.376,93.153,3.266,93.106,3.155,93.083z"/></svg>
+
+                      <p class="sr-only ng-scope" translate="PROGRESS_CIRCLE_EXPLANATION" translate-values="{&quot;normalizedProgress&quot;:0.75}">Your current progress going through the materials in  is 75%.</p>
+                    </div>
+                  </div>
+                </prog-circle>
+                    <label class="ng-binding">Advising</label>
+                    Financial Aid Advising
+                  </h2>
+                </div>
+              </a>
+
+              <div class="course-footer" ng-click="loadNextAss()" role="button" tabindex="0">
+                <div class="course-img"><img src="/static/texas/back5.jpg"></div>
+                <p class="next-up ng-binding">
+                  <span translate="Resume:" class="ng-scope">Resume:</span>The next assignment name here (15m)
+                  <i class="icon fa fa-angle-right"></i>
+                </p>
+                <div class="due-wrap">
+                  <span class="due-count-wrap on-time">
+                    <i class="icon fa fa-calendar-o"></i>
+                    <span class="due-count ng-binding">3</span>
+                  </span>
+                </div>
+              </div>
+
+            </div>
+            <div class="course ng-scope" id="course-2" ng-repeat="course in courses">
+
+              <a id="career-advising" href="#">
+                <div class="course-info">
+                  <h2 class="ng-binding">
+                    <prog-circle prog="course.prog" icon="course.icon" class="ng-isolate-scope"><div class="comp-item prog-circle done-50">
+
+                    <div class="c100">
+                      <prog-circle-circle ng-if="!scoreMode()" prog="prog" class="ng-scope ng-isolate-scope" id="chart-id-20"><div class="chart flex-center-center" style="width: 100%; height: 100%;"><svg width="48" height="48"><g transform="translate(24,24)" class="p50"><g class="arc"><path d="M1.4695761589768238e-15,-24A24,24 0 0,1 1.4695761589768238e-15,24L1.102182119232618e-15,18A18,18 0 0,0 1.102182119232618e-15,-18Z" class="complete"></path></g><g class="arc"><path d="M1.4695761589768238e-15,24A24,24 0 0,1 -4.408728476930472e-15,-24L-3.3065463576978533e-15,-18A18,18 0 0,0 1.102182119232618e-15,18Z" class="incomplete"></path></g></g></svg></div></prog-circle-circle>
+
+
+                  <svg class="icon mozilla-svg" 
+
+                  style="fill: #273e8f;" 
+
+                  viewBox="5 -5 90 90" height="1em" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0-2.603,0-5.204,0-7.804c3.521,0,7.041-0.004,10.561,0.006  c0.298,0.003,0.443-0.074,0.557-0.369c1.381-3.562,2.779-7.116,4.173-10.672c6.561-16.745,13.121-33.492,19.683-50.237  c0.096-0.244,0.201-0.485,0.298-0.719c0.431,0.303,0.806,0.618,1.225,0.854c2.42,1.357,4.949,2.479,7.595,3.315  c0.669,0.211,1.381,0.312,2.083,0.4c0.414,0.053,0.511-0.093,0.511-0.51c0.001-1.705,0.001-3.411,0.001-5.115  c0-0.131,0-0.262,0-0.403c0.104-0.006,0.164-0.018,0.223-0.012c1.325,0.147,2.645,0.365,3.974,0.431  c2.864,0.144,5.731,0.25,8.599,0.296c3.442,0.055,6.891,0.071,10.326-0.225c0.801-0.069,1.618-0.095,2.362-0.477  c0.063-0.034,0.212-0.037,0.235,0c0.279,0.445,0.749,0.44,1.174,0.495c2.479,0.314,4.969,0.303,7.453,0.12  c0.85-0.063,1.693-0.249,2.529-0.429c0.215-0.046,0.392-0.28,0.583-0.428c0.1,0,0.198,0,0.295,0  c0.813,21.218,1.627,42.434,2.442,63.681c2.496,0,4.959,0,7.422,0c0,2.6,0,5.201,0,7.804c-0.17,0.003-0.343,0.011-0.513,0.011  c-31.117,0-62.234,0-93.351,0C3.449,93.094,3.302,93.086,3.155,93.083z M49.828,28.525c-0.022-0.003-0.046-0.007-0.068-0.011  c-7.41,18.909-14.819,37.817-22.236,56.741c7.46,0,14.875,0,22.304,0C49.828,66.33,49.828,47.427,49.828,28.525z M39.212,30.451  c-4.218,10.767-8.415,21.476-12.623,32.212c1.431,0.562,2.817,1.104,4.237,1.662c4.211-10.747,8.413-21.469,12.625-32.215  C42.028,31.553,40.643,31.01,39.212,30.451z M71.047,33.125c-5.562,0-11.1,0-16.628,0c0,2.477,0,4.925,0,7.375  c5.553,0,11.083,0,16.628,0C71.047,38.033,71.047,35.585,71.047,33.125z M75.661,25.618c-0.01,0-0.019,0.001-0.026,0.001  c0,19.877,0,39.755,0,59.637c0.779,0,1.533,0,2.31,0C77.185,65.361,76.424,45.49,75.661,25.618z M80.087,75.662  c2.526-0.096,5.006-0.188,7.523-0.287c-0.05-1.259-0.097-2.477-0.146-3.728c-2.541,0.1-5.027,0.195-7.526,0.293  C79.987,73.205,80.037,74.402,80.087,75.662z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0.147,0.003,0.294,0.011,0.441,0.011c31.117,0,62.234,0,93.351,0  c0.17,0,0.343-0.008,0.513-0.011c-0.01,0.023-0.021,0.068-0.038,0.07c-0.097,0.006-0.193,0.003-0.29,0.003  c-31.217,0-62.431,0-93.646-0.003C3.376,93.153,3.266,93.106,3.155,93.083z"/></svg>
+
+                      <p class="sr-only ng-scope" translate="PROGRESS_CIRCLE_EXPLANATION" translate-values="{&quot;normalizedProgress&quot;:0.5}">Your current progress going through the materials in  is 50%.</p>
+                    </div>
+                  </div>
+                  </prog-circle>
+                    <label class="ng-binding">Advising</label>
+                    Career Advising
+                  </h2>
+                </div>
+              </a>
+
+              <div class="course-footer" ng-click="loadNextAss()" role="button" tabindex="0">
+                <div class="course-img"><img src="/static/texas/back4.jpg"></div>
+                <p class="next-up ng-binding">
+                  <span translate="Resume:" class="ng-scope">Resume:</span>The next assignment name here (15m)
+                  <i class="icon fa fa-angle-right"></i>
+                </p>
+                <div class="due-wrap">
+                  <span class="due-count-wrap past-due">
+                    <i class="icon fa fa-calendar-o"></i>
+                    <span class="due-count ng-binding">1</span>
+                  </span>
+                </div>
+              </div>
+
+            </div><div class="course ng-scope" id="course-3" ng-repeat="course in courses">
+
+              <a id="postsecondary-advising" href="#">
+                <div class="course-info">
+                  <h2 style="font-size: 1.5em; background:none; padding-left: 5px; text-transform: capitalize;  font-weight: 400" class="ng-binding">
+                    <prog-circle prog="course.prog" icon="course.icon" class="ng-isolate-scope"><div class="comp-item prog-circle done-25">
+
+                        <div class="c100">
+                          <prog-circle-circle ng-if="!scoreMode()" prog="prog" class="ng-scope ng-isolate-scope" id="chart-id-21"><div class="chart flex-center-center" style="width: 100%; height: 100%;"><svg width="48" height="48"><g transform="translate(24,24)" class="p25"><g class="arc"><path d="M1.4695761589768238e-15,-24A24,24 0 0,1 24,0L18,0A18,18 0 0,0 1.102182119232618e-15,-18Z" class="complete"></path></g><g class="arc"><path d="M24,0A24,24 0 1,1 -4.408728476930472e-15,-24L-3.3065463576978533e-15,-18A18,18 0 1,0 18,0Z" class="incomplete"></path></g></g></svg></div></prog-circle-circle>
+
+
+                  <svg class="icon mozilla-svg" 
+
+                  style="fill: #a44e93;" 
+
+                  viewBox="5 -5 90 90" height="1em" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0-2.603,0-5.204,0-7.804c3.521,0,7.041-0.004,10.561,0.006  c0.298,0.003,0.443-0.074,0.557-0.369c1.381-3.562,2.779-7.116,4.173-10.672c6.561-16.745,13.121-33.492,19.683-50.237  c0.096-0.244,0.201-0.485,0.298-0.719c0.431,0.303,0.806,0.618,1.225,0.854c2.42,1.357,4.949,2.479,7.595,3.315  c0.669,0.211,1.381,0.312,2.083,0.4c0.414,0.053,0.511-0.093,0.511-0.51c0.001-1.705,0.001-3.411,0.001-5.115  c0-0.131,0-0.262,0-0.403c0.104-0.006,0.164-0.018,0.223-0.012c1.325,0.147,2.645,0.365,3.974,0.431  c2.864,0.144,5.731,0.25,8.599,0.296c3.442,0.055,6.891,0.071,10.326-0.225c0.801-0.069,1.618-0.095,2.362-0.477  c0.063-0.034,0.212-0.037,0.235,0c0.279,0.445,0.749,0.44,1.174,0.495c2.479,0.314,4.969,0.303,7.453,0.12  c0.85-0.063,1.693-0.249,2.529-0.429c0.215-0.046,0.392-0.28,0.583-0.428c0.1,0,0.198,0,0.295,0  c0.813,21.218,1.627,42.434,2.442,63.681c2.496,0,4.959,0,7.422,0c0,2.6,0,5.201,0,7.804c-0.17,0.003-0.343,0.011-0.513,0.011  c-31.117,0-62.234,0-93.351,0C3.449,93.094,3.302,93.086,3.155,93.083z M49.828,28.525c-0.022-0.003-0.046-0.007-0.068-0.011  c-7.41,18.909-14.819,37.817-22.236,56.741c7.46,0,14.875,0,22.304,0C49.828,66.33,49.828,47.427,49.828,28.525z M39.212,30.451  c-4.218,10.767-8.415,21.476-12.623,32.212c1.431,0.562,2.817,1.104,4.237,1.662c4.211-10.747,8.413-21.469,12.625-32.215  C42.028,31.553,40.643,31.01,39.212,30.451z M71.047,33.125c-5.562,0-11.1,0-16.628,0c0,2.477,0,4.925,0,7.375  c5.553,0,11.083,0,16.628,0C71.047,38.033,71.047,35.585,71.047,33.125z M75.661,25.618c-0.01,0-0.019,0.001-0.026,0.001  c0,19.877,0,39.755,0,59.637c0.779,0,1.533,0,2.31,0C77.185,65.361,76.424,45.49,75.661,25.618z M80.087,75.662  c2.526-0.096,5.006-0.188,7.523-0.287c-0.05-1.259-0.097-2.477-0.146-3.728c-2.541,0.1-5.027,0.195-7.526,0.293  C79.987,73.205,80.037,74.402,80.087,75.662z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.155,93.083c0.147,0.003,0.294,0.011,0.441,0.011c31.117,0,62.234,0,93.351,0  c0.17,0,0.343-0.008,0.513-0.011c-0.01,0.023-0.021,0.068-0.038,0.07c-0.097,0.006-0.193,0.003-0.29,0.003  c-31.217,0-62.431,0-93.646-0.003C3.376,93.153,3.266,93.106,3.155,93.083z"/></svg>
+
+
+
+                          <p class="sr-only ng-scope" translate="PROGRESS_CIRCLE_EXPLANATION" translate-values="{&quot;normalizedProgress&quot;:0.25}">Your current progress going through the materials in  is 25%.</p>
+                        </div>
+                      </div>
+                      </prog-circle>
+                    <label class="ng-binding">Advising</label>
+                    Postsecondary Advising
+                  </h2>
+                </div>
+              </a>
+
+              <div class="course-footer" ng-click="loadNextAss()" role="button" tabindex="0">
+                <div class="course-img"><img src="/static/texas/back3.jpg"></div>
+                <p class="next-up ng-binding">
+                  <span translate="Resume:" class="ng-scope">Resume:</span>The next assignment name here (15m)
+                  <i class="icon fa fa-angle-right"></i>
+                </p>
+                <div class="due-wrap">
+                  <span class="due-count-wrap ">
+                    <i class="icon fa fa-calendar-o"></i>
+                    <span class="due-count ng-binding">0</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="course-archive">
+              <button class="lo-btn lo-btn-outline" style="font-weight: 400" ng-click="showArchive = !showArchive">
+                <span class="ng-binding">7</span> Inactive enrollments
+                <i class="icon  fa-angle-down" style="font-weight: bold;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- NEW TRASH -->
+
+
+              <div class="portfolio-wrap home-port ng-scope">
+          <div class="portfolio-list">
+            <div class="active wrap-capabilities portfolio ng-isolate-scope" ng-style="portStyle" data="portfolioItems[0]" style="background-color: rgb(19, 72, 85);">
+          <div class="lo-container">
+            <div class="org-logo">
+              <img ng-src="images/orgs/logo-cbu.png" src="./Daily_files/logo-cbu.png">
+            </div>
+            <h2 class="ng-binding">
+              <i class="icon icon-trophy"></i> 
+              Recent Badges
+              <!-- <button class="lo-btn lo-btn-outline lo-btn-white">
+                <i class="icon icon-upload"></i>
+                Import
+              </button> -->
+              <a href="https://localhost:3000/#/badges"><button class="lo-btn lo-btn-outline lo-btn-white-text">
+                View All
+              </button></a>
+            </h2>
+            <ul class="capability-list lo-grid">
+              <!-- ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                <div class="mastery-badge-wrap">
+
+                  <div class="mastery-badge done-50">
+                    <!--<i class="icon icon-hexagon"></i>
+                    <i class="icon icon-inner icon-hexagon" style="color: #1e75bc"></i>-->
+                    <div class="mastery-icon">
+                      <img ng-src="images/logo-badge-texas.png" src="/static/texas/logo-badge-texas.png">
+                    </div>
+                  </div>
+
+                  <div class="capability-label">
+                    <div class="master-badge-tails">
+                      <div class="tail-left"></div>
+                      <div class="tail-right"></div>
+                    </div>
+                    <p class="ng-binding">Effective Written Communication</p>
+                  </div>
+
+                  <div class="capability-meta">Earned on Feb. 26, 2016</div>
+
+                  <button class="capability-btn lo-btn lo-btn-white-text lo-btn-outline">
+                    <i class="icon icon-paper-plane"></i> Share This
+                  </button>
+
+                </div>
+                <div class="capability-evidence">
+                  <h3>Evidence</h3>
+                  <ul>
+                    <!-- ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed1.jpg" src="./Daily_files/feed1.jpg"></span>
+                      <span class="name ng-binding">Milestone 1 Final Project</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-bubbles"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed8.jpg" src="./Daily_files/feed8.jpg"></span>
+                      <span class="name ng-binding">Communicating Design With Cross-Hatching</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed2.jpg" src="./Daily_files/feed2.jpg"></span>
+                      <span class="name ng-binding">Milestone 2 Final Project: Shading in the Details</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed3.jpg" src="./Daily_files/feed3.jpg"></span>
+                      <span class="name ng-binding">Leveraging Shadows and Highlights to Create a Three-Dimensional Space</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed4.jpg" src="./Daily_files/feed4.jpg"></span>
+                      <span class="name ng-binding">Milestone 3 Final Project: Shading and Depth</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences -->
+                  </ul>
+                </div>
+              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                <div class="mastery-badge-wrap">
+
+                  <div class="mastery-badge done-80">
+                    <!--<i class="icon icon-hexagon"></i>
+                    <i class="icon icon-inner icon-hexagon" style="color: #1e75bc"></i>-->
+                    <div class="mastery-icon">
+                      <img ng-src="images/logo-badge-texas.png" src="/static/texas/logo-badge-texas.png">
+                    </div>
+                  </div>
+
+                  <div class="capability-label">
+                    <div class="master-badge-tails">
+                      <div class="tail-left"></div>
+                      <div class="tail-right"></div>
+                    </div>
+                    <p class="ng-binding">Intermediate Design Principles</p>
+                  </div>
+
+                  <div class="capability-meta">Earned on Feb. 26, 2016</div>
+
+                  <button class="capability-btn lo-btn lo-btn-white-text lo-btn-outline">
+                    <i class="icon icon-paper-plane"></i> Share This
+                  </button>
+
+                </div>
+                <div class="capability-evidence">
+                  <h3>Evidence</h3>
+                  <ul>
+                    <!-- ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed5.jpg" src="./Daily_files/feed5.jpg"></span>
+                      <span class="name ng-binding">Milestone 1 Final Project</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-bubbles"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed12.jpg" src="./Daily_files/feed12.jpg"></span>
+                      <span class="name ng-binding">Communicating Design With Cross-Hatching</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed6.jpg" src="./Daily_files/feed6.jpg"></span>
+                      <span class="name ng-binding">Milestone 2 Final Project: Shading in the Details</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed7.jpg" src="./Daily_files/feed7.jpg"></span>
+                      <span class="name ng-binding">Leveraging Shadows and Highlights to Create a Three-Dimensional Space</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-bubbles"></i>
+                      <span class="capability-thumb"><img ng-src=""></span>
+                      <span class="name ng-binding">Milestone 5 Discussion</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed9.jpg" src="./Daily_files/feed9.jpg"></span>
+                      <span class="name ng-binding">Milestone 1 Final Project</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences -->
+                  </ul>
+                </div>
+              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                <div class="mastery-badge-wrap">
+
+                  <div class="mastery-badge done-25">
+                    <!--<i class="icon icon-hexagon"></i>
+                    <i class="icon icon-inner icon-hexagon" style="color: #1e75bc"></i>-->
+                    <div class="mastery-icon">
+                      <img ng-src="images/logo-badge-texas.png" src="/static/texas/logo-badge-texas.png">
+                    </div>
+                  </div>
+
+                  <div class="capability-label">
+                    <div class="master-badge-tails">
+                      <div class="tail-left"></div>
+                      <div class="tail-right"></div>
+                    </div>
+                    <p class="ng-binding">Effective Verbal Communication</p>
+                  </div>
+
+                  <div class="capability-meta">Earned on Feb. 26, 2016</div>
+
+                  <button class="capability-btn lo-btn lo-btn-white-text lo-btn-outline">
+                    <i class="icon icon-paper-plane"></i> Share This
+                  </button>
+
+                </div>
+                <div class="capability-evidence">
+                  <h3>Evidence</h3>
+                  <ul>
+                    <!-- ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed8.jpg" src="./Daily_files/feed8.jpg"></span>
+                      <span class="name ng-binding">Milestone 1 Final Project</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed10.jpg" src="./Daily_files/feed10.jpg"></span>
+                      <span class="name ng-binding">Milestone 2 Final Project: Shading in the Details</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                      <i class="icon icon-pencil-ruler"></i>
+                      <span class="capability-thumb"><img ng-src="images/feed/feed11.jpg" src="./Daily_files/feed11.jpg"></span>
+                      <span class="name ng-binding">Leveraging Shadows and Highlights to Create a Three-Dimensional Space</span>
+                    </li><!-- end ngRepeat: evidence in capability.evidences -->
+                  </ul>
+                </div>
+              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                <div class="mastery-badge-wrap">
+
+                  <div class="mastery-badge done-75">
+                    <!--<i class="icon icon-hexagon"></i>
+                    <i class="icon icon-inner icon-hexagon" style="color: #1e75bc"></i>-->
+                    <div class="mastery-icon">
+                      <img ng-src="images/logo-badge-texas.png" src="/static/texas/logo-badge-texas.png">
+                    </div>
+                  </div>
+
+                  <div class="capability-label">
+                    <div class="master-badge-tails">
+                      <div class="tail-left"></div>
+                      <div class="tail-right"></div>
+                    </div>
+                    <p class="ng-binding">Critical Thinking &amp; Problem Solving</p>
+                  </div>
+
+                  <div class="capability-meta">Earned on Feb. 26, 2016</div>
+
+                  <button class="capability-btn lo-btn lo-btn-white-text lo-btn-outline">
+                    <i class="icon icon-paper-plane"></i> Share This
+                  </button>
+
+                </div>
+                <div class="capability-evidence">
+                  <h3>Evidence</h3>
+                  <ul>
+                    <!-- ngRepeat: evidence in capability.evidences -->
+                  </ul>
+                </div>
+              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                <div class="mastery-badge-wrap">
+
+                  <div class="mastery-badge done-75">
+                    <!--<i class="icon icon-hexagon"></i>
+                    <i class="icon icon-inner icon-hexagon" style="color: #1e75bc"></i>-->
+                    <div class="mastery-icon">
+                      <img ng-src="images/logo-badge-texas.png" src="/static/texas/logo-badge-texas.png">
+                    </div>
+                  </div>
+
+                  <div class="capability-label">
+                    <div class="master-badge-tails">
+                      <div class="tail-left"></div>
+                      <div class="tail-right"></div>
+                    </div>
+                    <p class="ng-binding">Anthropology and Architecture in Modern Terms and Understanding</p>
+                  </div>
+
+                  <div class="capability-meta">Earned on Feb. 26, 2016</div>
+
+                  <button class="capability-btn lo-btn lo-btn-white-text lo-btn-outline">
+                    <i class="icon icon-paper-plane"></i> Share This
+                  </button>
+
+                </div>
+                <div class="capability-evidence">
+                  <h3>Evidence</h3>
+                  <ul>
+                    <!-- ngRepeat: evidence in capability.evidences -->
+                  </ul>
+                </div>
+              </li><!-- end ngRepeat: capability in capabilities -->
+            </ul>
+          </div>
+        </div>
+          </div>
+        </div>
+
+
+        <div class="landing-comp-wrap ng-scope">
+
+          <div class="lo-container">
+
+            <h2>
+              <i class="icon fa fa-graduation-cap"></i> Competencies
+              <a href="https://localhost:3000/#/mastery"><button class="lo-btn lo-btn-outline">View All</button></a>
+            </h2>
+
+            <div class="mastery-col-wrap lo-grid">
+
+              <div class="mastery-data-wrap lo-grid-unit-1-1 lo-grid-unit-md-2-5">
+                <div class="mastery-badge-wrap mastery-completed-count">
+                  <div class="mastery-badge">
+                    <i class="icon fa fa-circle"></i>
+                    <i class="icon fa fa-circle icon-inner"></i>
+                    <!--<i class="icon icon-trophy"></i>-->
+                    <span class="master-num">2</span>
+                  </div>
+                  <label>Completed</label>
+                </div>
+                <div class="mastery-badge-wrap mastery-progress-count">
+                  <div class="mastery-badge">
+                    <i class="icon fa fa-circle"></i>
+                    <i class="icon fa fa-circle icon-inner"></i>
+                    <!--<i class="icon icon-loading"></i>-->
+                    <span class="master-num">12</span>
+                  </div>
+                  <label>In-Progress</label>
+                </div>
+              </div>
+
+              <div class="mastery-recent-wrap lo-grid-unit-1-1 lo-grid-unit-md-3-5">
+
+                <img src="/static/texas/mastery-graph.png" style="margin: 0;">
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="lo-container lo-grid ng-scope">
+
+          <div class="widget-wrap">
+
+            <div class="widget-item widget-primary lo-grid-unit-lg-1-3 lo-grid-unit-md-1-2 lo-grid-unit-sm-1-1 lo-grid-unit-xs-1-1"> 
+              <div class="widget-item-internal">
+                <div class="widget-top">
+                  <i class="icon fa fa-star-o"></i>
+                  <h3>My Favorites</h3>
+                </div>
+                <p><a href="https://localhost:3000/"><i class="icon fa fa-check"></i> 10 Added</a></p>
+                <p><a href="https://localhost:3000/"><i class="icon fa fa-cog"></i> Manage</a></p>
+              </div>
+            </div>
+
+            <div class="widget-item widget-secondary lo-grid-unit-lg-1-3 lo-grid-unit-md-1-2 lo-grid-unit-sm-1-1 lo-grid-unit-xs-1-1">
+              <div class="widget-item-internal">
+                <div class="widget-top">
+                  <i class="icon fa fa-comments-o"></i>
+                  <h3>Counselor Discussions</h3>
+                </div>
+                <p>Updated: 9/12/16, 1:45pm</p>
+                <p>By: <a href="https://localhost:3000/">Brendan English</a></p>
+              </div>
+            </div>
+
+            <div class="widget-item widget-accent lo-grid-unit-lg-1-3 lo-grid-unit-md-1-2 lo-grid-unit-sm-1-1 lo-grid-unit-xs-1-1">
+              <div class="widget-item-internal">
+                <div class="widget-top">
+                  <i class="icon fa fa-globe"></i>
+                  <h3>Social Media</h3>
+                </div>
+                <p><a href="https://localhost:3000/"><i class="icon fa fa-facebook"></i> Facebook</a></p>
+                <p><a href="https://localhost:3000/"><i class="icon fa fa-twitter"></i> Twitter</a></p>
+              </div>
+            </div>
+
+          </div>
+
+        </div></div>
+        </div>
+        
+      </div>
+
+    <!-- OLD TRASH AGAIN -->
+
+      <div id="lti-iframes-hidden-container">
+
+      </div>
+
+      <script>
+        var button = [];
+        window.onload = function() {
+
+          if (window.location.port){
+            $("#lti-iframes-hidden-container").html("Current implementation does not support full capabilities of this page.");
+          } else {
+            $("#lti-iframes-hidden-container").html('<iframe id="financial-aid-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@31451d9bc2964d16947bd8c54fe99f9b"> </iframe><iframe id="career-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@daab4c87aac243d38b562f5a327fd5cf"> </iframe><iframe id="postsecondary-advising" style="border:none;" height="1" width="1" src="http://104.196.52.250/xblock/block-v1:EE+EE101+2016_T3+type@lti_consumer+block@7a1fadbda50a4f118cd7ed874308b0fa"> </iframe>');
+          }
+
+          var children = document.getElementById("lti-iframes-hidden-container").children;
+          var c = children.length;
+
+          for(var i = 0; i < c; i ++){
+            var el = children[i].contentWindow.document.getElementsByClassName("btn-lti-new-window")[0];
+              if(el) button[children[i].id] = el;
+          }
+
+        };
+        
+        $(".lo-mainclass a").on("click", function(event) {
+          // Probably should look if they're loaded already, but for now it's working.
+          loadButtons();
+          button[event.currentTarget.id].click();
+        });
+
+        function loadButtons(){
+          var children = document.getElementById("lti-iframes-hidden-container").children;
+          var c = children.length;
+
+          for(var i = 0; i < c; i ++){
+            var el = children[i].contentWindow.document.getElementsByClassName("btn-lti-new-window")[0];
+              if(el) button[children[i].id] = el;
+          }
+
+        }
+      </script>
+
+    </div>
+      <!-- End body of Dashboard -->
+
+
+
+</main>
+
+<div id="email-settings-modal" class="modal" aria-hidden="true">
+  <div class="inner-wrapper" role="dialog" aria-labelledby="email-settings-title">
+    <button class="close-modal">
+      <span class="icon fa fa-remove" aria-hidden="true"></span>
+      <span class="sr">
+        ## Translators: this is a control to allow users to exit out of this modal interface (a menu or piece of UI that takes the full focus of the screen)
+        ${_("Close")}
+      </span>
+    </button>
+
+    <header>
+      <h2 id="email-settings-title">
+        ${Text(_("Email Settings for {course_number}")).format(course_number=HTML('<span id="email_settings_course_number"></span>'))}
+        <span class="sr">,
+          ## Translators: this text gives status on if the modal interface (a menu or piece of UI that takes the full focus of the screen) is open or not
+          ${_("window open")}
+        </span>
+      </h2>
+      <hr/>
+    </header>
+
+    <form id="email_settings_form" method="post">
+      <input name="course_id" id="email_settings_course_id" type="hidden" />
+      <label>${_("Receive course emails")} <input type="checkbox" id="receive_emails" name="receive_emails" /></label>
+      <div class="submit">
+        <input type="submit" id="submit" value="${_("Save Settings")}" />
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="unenroll-modal" class="modal unenroll-modal" aria-hidden="true">
+  <div class="inner-wrapper" role="dialog" aria-labelledby="unenrollment-modal-title">
+    <button class="close-modal">
+      <span class="icon fa fa-remove" aria-hidden="true"></span>
+      <span class="sr">
+        ## Translators: this is a control to allow users to exit out of this modal interface (a menu or piece of UI that takes the full focus of the screen)
+        ${_("Close")}
+      </span>
+    </button>
+
+    <header>
+      <h2 id="unenrollment-modal-title">
+        <span id='track-info'></span>
+        <span id='refund-info'></span>
+        <span class="sr">,
+          ## Translators: this text gives status on if the modal interface (a menu or piece of UI that takes the full focus of the screen) is open or not
+          ${_("window open")}
+        </span>
+      </h2>
+      <hr/>
+    </header>
+    <div id="unenroll_error" class="modal-form-error"></div>
+    <form id="unenroll_form" method="post" data-remote="true" action="${reverse('change_enrollment')}">
+      <input name="course_id" id="unenroll_course_id" type="hidden" />
+      <input name="enrollment_action" type="hidden" value="unenroll" />
+      <div class="submit">
+        <input name="submit" type="submit" value="${_("Unenroll")}" />
+      </div>
+    </form>
+  </div>
+</div>
