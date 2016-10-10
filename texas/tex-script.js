@@ -1,4 +1,5 @@
 var button = [];
+var LTIblocks = [];
 window.onload = function() {
   // zasad upeceno
   var apiBlocksFromCourseRoute = "/api/courses/v1/blocks/?course_id="
@@ -17,20 +18,28 @@ window.onload = function() {
     console.log("Request status: ", textStatus);
     console.log("Request returned: ", data);
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    var LTIblocks = [];
       for(var key in data.blocks){
         if(data.blocks[key].type == "lti_consumer"){
           LTIblocks.push(data.blocks[key]);
         }
       }
     console.log("Curated blocks: ", LTIblocks);
+    for(var i = 0; i< LTIblocks.length; i++){
+      $('<iframe/>', {
+          'id': LTIblocks[i].id,
+          'style':'border:none;',
+          'height':'1',
+          'width':'1',
+          'src': LTIblocks[i].student_view_url
+      }).appendTo('#lti-iframes-hidden-container');
+    }
   });
   // Need to find a better way for controlling this:
-  if (window.location.port){
+  /*if (window.location.port){
     $("#lti-iframes-hidden-container").html("");
   } else {
     $("#lti-iframes-hidden-container").html('<iframe id="financial-aid-advising" style="border:none;" height="1" width="1" src="http://microsite.tex.extensionengine.com/xblock/block-v1:TexasOnCourse+TXOC101+2016_T2+type@lti_consumer+block@788c479d8370471185c422ffbd198a82"> </iframe><iframe id="career-advising" style="border:none;" height="1" width="1" src="http://microsite.tex.extensionengine.com/xblock/block-v1:TexasOnCourse+TXOC101+2016_T2+type@lti_consumer+block@4932fabbde5445b0a5eb29ccb5947453"> </iframe><iframe id="postsecondary-advising" style="border:none;" height="1" width="1" src="http://microsite.tex.extensionengine.com/xblock/block-v1:TexasOnCourse+TXOC101+2016_T2+type@lti_consumer+block@cc3b50c9ed2d441893d68a66aa2c9689"> </iframe>');
-  }
+  }*/
 };
 
 $(".lo-mainclass a").on("click", function(event) {
