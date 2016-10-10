@@ -230,16 +230,13 @@ from openedx.core.djangolib.markup import HTML, Text
       </div>
 
 
-      <!-- NEW TRASH -->
-
-
               <div class="portfolio-wrap home-port ng-scope">
           <div class="portfolio-list">
             <div class="active wrap-capabilities portfolio ng-isolate-scope" ng-style="portStyle" data="portfolioItems[0]" style="background-color: rgb(19, 72, 85);">
           <div class="lo-container">
-            <div class="org-logo">
+            <!--<div class="org-logo">
               <img ng-src="images/orgs/logo-cbu.png" src="./Daily_files/logo-cbu.png">
-            </div>
+            </div>-->
             <h2 class="ng-binding">
               <i class="icon icon-trophy"></i> 
               Recent Badges
@@ -252,7 +249,7 @@ from openedx.core.djangolib.markup import HTML, Text
               </button></a>
             </h2>
             <ul class="capability-list lo-grid">
-              <!-- ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+              <li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
                 <div class="mastery-badge-wrap">
 
                   <div class="mastery-badge done-50">
@@ -278,33 +275,34 @@ from openedx.core.djangolib.markup import HTML, Text
                   </button>
 
                 </div>
+                <!--
                 <div class="capability-evidence">
                   <h3>Evidence</h3>
                   <ul>
-                    <!-- ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    <li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed1.jpg" src="./Daily_files/feed1.jpg"></span>
                       <span class="name ng-binding">Milestone 1 Final Project</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-bubbles"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed8.jpg" src="./Daily_files/feed8.jpg"></span>
                       <span class="name ng-binding">Communicating Design With Cross-Hatching</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed2.jpg" src="./Daily_files/feed2.jpg"></span>
                       <span class="name ng-binding">Milestone 2 Final Project: Shading in the Details</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed3.jpg" src="./Daily_files/feed3.jpg"></span>
                       <span class="name ng-binding">Leveraging Shadows and Highlights to Create a Three-Dimensional Space</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed4.jpg" src="./Daily_files/feed4.jpg"></span>
                       <span class="name ng-binding">Milestone 3 Final Project: Shading and Depth</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences -->
+                    </li>
                   </ul>
-                </div>
-              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                </div> -->
+              </li><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
                 <div class="mastery-badge-wrap">
 
                   <div class="mastery-badge done-80">
@@ -330,37 +328,37 @@ from openedx.core.djangolib.markup import HTML, Text
                   </button>
 
                 </div>
-                <div class="capability-evidence">
+                <!--<div class="capability-evidence">
                   <h3>Evidence</h3>
                   <ul>
-                    <!-- ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    <li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed5.jpg" src="./Daily_files/feed5.jpg"></span>
                       <span class="name ng-binding">Milestone 1 Final Project</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-bubbles"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed12.jpg" src="./Daily_files/feed12.jpg"></span>
                       <span class="name ng-binding">Communicating Design With Cross-Hatching</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed6.jpg" src="./Daily_files/feed6.jpg"></span>
                       <span class="name ng-binding">Milestone 2 Final Project: Shading in the Details</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed7.jpg" src="./Daily_files/feed7.jpg"></span>
                       <span class="name ng-binding">Leveraging Shadows and Highlights to Create a Three-Dimensional Space</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-bubbles"></i>
                       <span class="capability-thumb"><img ng-src=""></span>
                       <span class="name ng-binding">Milestone 5 Discussion</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed9.jpg" src="./Daily_files/feed9.jpg"></span>
                       <span class="name ng-binding">Milestone 1 Final Project</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences -->
+                    </li>
                   </ul>
-                </div>
-              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                </div> -->
+              </li><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
                 <div class="mastery-badge-wrap">
 
                   <div class="mastery-badge done-25">
@@ -387,24 +385,24 @@ from openedx.core.djangolib.markup import HTML, Text
 
                 </div>
                 <div class="capability-evidence">
-                  <h3>Evidence</h3>
+                  <!--<h3>Evidence</h3>
                   <ul>
-                    <!-- ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    <li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed8.jpg" src="./Daily_files/feed8.jpg"></span>
                       <span class="name ng-binding">Milestone 1 Final Project</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed10.jpg" src="./Daily_files/feed10.jpg"></span>
                       <span class="name ng-binding">Milestone 2 Final Project: Shading in the Details</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences --><li ng-repeat="evidence in capability.evidences" class="ng-scope">
+                    </li><li ng-repeat="evidence in capability.evidences" class="ng-scope">
                       <i class="icon icon-pencil-ruler"></i>
                       <span class="capability-thumb"><img ng-src="images/feed/feed11.jpg" src="./Daily_files/feed11.jpg"></span>
                       <span class="name ng-binding">Leveraging Shadows and Highlights to Create a Three-Dimensional Space</span>
-                    </li><!-- end ngRepeat: evidence in capability.evidences -->
+                    </li>
                   </ul>
-                </div>
-              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+                </div> -->
+              </li><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
                 <div class="mastery-badge-wrap">
 
                   <div class="mastery-badge done-75">
@@ -433,10 +431,9 @@ from openedx.core.djangolib.markup import HTML, Text
                 <div class="capability-evidence">
                   <h3>Evidence</h3>
                   <ul>
-                    <!-- ngRepeat: evidence in capability.evidences -->
                   </ul>
                 </div>
-              </li><!-- end ngRepeat: capability in capabilities --><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
+              </li><li class="capability-item lo-grid-unit-lg-1-5 lo-grid-unit-md-1-3 lo-grid-unit-sm-1-2 lo-grid-unit-xs-1-1 ng-scope" ng-class="{&#39;expanded&#39;: isExpanded === $index}" ng-repeat="capability in capabilities" ng-click="showCapability($index)" role="button" tabindex="0">
                 <div class="mastery-badge-wrap">
 
                   <div class="mastery-badge done-75">
@@ -465,10 +462,9 @@ from openedx.core.djangolib.markup import HTML, Text
                 <div class="capability-evidence">
                   <h3>Evidence</h3>
                   <ul>
-                    <!-- ngRepeat: evidence in capability.evidences -->
                   </ul>
                 </div>
-              </li><!-- end ngRepeat: capability in capabilities -->
+              </li>
             </ul>
           </div>
         </div>
@@ -563,68 +559,13 @@ from openedx.core.djangolib.markup import HTML, Text
         </div>
         
       </div>
-
-    <!-- OLD TRASH AGAIN -->
-
       <div id="lti-iframes-hidden-container">
 
       </div>
-
-      <script>
-        var button = [];
-        window.onload = function() {
-          // zasad upečeno
-          var course_url = "http://microsite.tex.extensionengine.com/api/courses/v1/blocks/?course_id=course-v1%3ATexasOnCourse%2BTXOC101%2B2016_T2&username=oncourse&depth=all";
-          $.get(course_url, function(data, textStatus){
-            console.log("Successful request! ");
-            console.log("Request status: ", textStatus);
-            console.log("Request returned: ", data);
-            console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-            var LTIblocks = [];
-              for(var key in data.blocks){
-                if(data.blocks[key].type == "lti_consumer"){
-                  LTIblocks.push(data.blocks[key]);
-                }
-              }
-            console.log("Curated blocks: ", LTIblocks);
-          });
-          // Need to find a better way for controlling this:
-          if (window.location.port){
-            $("#lti-iframes-hidden-container").html("");
-          } else {
-            $("#lti-iframes-hidden-container").html('<iframe id="financial-aid-advising" style="border:none;" height="1" width="1" src="http://microsite.tex.extensionengine.com/xblock/block-v1:TexasOnCourse+TXOC101+2016_T2+type@lti_consumer+block@788c479d8370471185c422ffbd198a82"> </iframe><iframe id="career-advising" style="border:none;" height="1" width="1" src="http://microsite.tex.extensionengine.com/xblock/block-v1:TexasOnCourse+TXOC101+2016_T2+type@lti_consumer+block@4932fabbde5445b0a5eb29ccb5947453"> </iframe><iframe id="postsecondary-advising" style="border:none;" height="1" width="1" src="http://microsite.tex.extensionengine.com/xblock/block-v1:TexasOnCourse+TXOC101+2016_T2+type@lti_consumer+block@cc3b50c9ed2d441893d68a66aa2c9689"> </iframe>');
-          }
-
-          var children = document.getElementById("lti-iframes-hidden-container").children;
-          var c = children.length;
-
-          for(var i = 0; i < c; i ++){
-            var el = children[i].contentWindow.document.getElementsByClassName("btn-lti-new-window")[0];
-              if(el) button[children[i].id] = el;
-          }
-
-        };
-        
-        $(".lo-mainclass a").on("click", function(event) {
-          // Probably should look if they're loaded already, but for now it's working.
-          loadButtons();
-          button[event.currentTarget.id].click();
-        });
-
-        function loadButtons(){
-          var children = document.getElementById("lti-iframes-hidden-container").children;
-          var c = children.length;
-
-          for(var i = 0; i < c; i ++){
-            var el = children[i].contentWindow.document.getElementsByClassName("btn-lti-new-window")[0];
-              if(el) button[children[i].id] = el;
-          }
-
-        }
-      </script>
-
     </div>
-      <!-- End body of Dashboard -->
+<script src="/static/microsite/texas/tex-script.js"></script>
+
+<!-- End body of Dashboard -->
 
 
 
