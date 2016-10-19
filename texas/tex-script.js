@@ -5,11 +5,12 @@ window.onload = function() {
   var apiUsernameSetting = "&username=";
   var apiDepthSetting = "&depth=all";
 
-  var domain = "microsite.tex.extensionengine.com";
-  var username = "oncourse";
   var courseId = "course-v1%3ATexasOnCourse%2BTXOC101%2B2016_T2";
+  var domain = "microsite.tex.extensionengine.com";
 
-  var apiUrl =  "http://" + domain + apiBlocksFromCourseRoute + courseId + apiUsernameSetting + username + apiDepthSetting;
+  var cookie = $.parseJSON($.parseJSON($.cookie("edx-user-info").replace(/\\054/g, ',')));
+
+  var apiUrl =  "http://" + domain + apiBlocksFromCourseRoute + courseId + apiUsernameSetting + cookie.username + apiDepthSetting;
   // example: http://microsite.tex.extensionengine.com/api/courses/v1/blocks/?course_id=course-v1%3ATexasOnCourse%2BTXOC101%2B2016_T2&username=oncourse&depth=all
 
   $.get(apiUrl, function(data, textStatus){
@@ -51,5 +52,4 @@ function loadButtons(){
     var el = children[i].contentWindow.document.getElementsByClassName("btn-lti-new-window")[0];
       if(el) button[children[i].id] = el;
   }
-
 }
